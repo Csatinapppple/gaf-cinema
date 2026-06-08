@@ -15,3 +15,11 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Assets folder
+assets/
+
+# AI Specific Ignores
+.claude/
+.github/
+memory/

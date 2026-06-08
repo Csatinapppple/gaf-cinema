@@ -1,0 +1,77 @@
+[gd_scene load_steps=9 format=3 uid="uid://fnemy2ag0tdw"]
+
+[ext_resource type="Script" uid="uid://bpdjac6jjg8fv" path="res://scripts/xr/xr_bootstrap.gd" id="1_boot"]
+[ext_resource type="PackedScene" uid="uid://kv3afcuu7ki4" path="res://assets/cinema_hall/cinema_hall.glb" id="2_hall"]
+[ext_resource type="Script" uid="uid://ih6kujyrc7kl" path="res://scripts/cinema/screen_player.gd" id="3_screen"]
+[ext_resource type="Script" path="res://scripts/player/vr_locomotion.gd" id="4_loco"]
+[ext_resource type="Script" path="res://scripts/cinema/cinema_collision.gd" id="5_col"]
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.015, 0.015, 0.025, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.4, 0.4, 0.45, 1)
+
+[sub_resource type="CapsuleShape3D" id="Capsule_1"]
+radius = 0.25
+height = 1.7
+
+[sub_resource type="BoxMesh" id="Box_1"]
+size = Vector3(0.04, 0.04, 0.12)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_boot")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 0)
+light_energy = 0.6
+shadow_enabled = true
+
+[node name="CinemaHall" parent="." instance=ExtResource("2_hall")]
+script = ExtResource("5_col")
+
+[node name="VideoScreen" type="Node3D" parent="."]
+script = ExtResource("3_screen")
+inverter_vertical = true
+inverter_horizontal = true
+
+[node name="SubViewport" type="SubViewport" parent="VideoScreen"]
+disable_3d = true
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="VideoScreen/SubViewport"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand = true
+
+[node name="PlayerBody" type="CharacterBody3D" parent="."]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -10, 3, 0)
+script = ExtResource("4_loco")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("Capsule_1")
+
+[node name="XROrigin3D" type="XROrigin3D" parent="PlayerBody"]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="PlayerBody/XROrigin3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="LeftController" type="XRController3D" parent="PlayerBody/XROrigin3D"]
+tracker = &"left_hand"
+
+[node name="Mesh" type="MeshInstance3D" parent="PlayerBody/XROrigin3D/LeftController"]
+mesh = SubResource("Box_1")
+
+[node name="RightController" type="XRController3D" parent="PlayerBody/XROrigin3D"]
+tracker = &"right_hand"
+
+[node name="Mesh" type="MeshInstance3D" parent="PlayerBody/XROrigin3D/RightController"]
+mesh = SubResource("Box_1")

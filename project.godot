@@ -11,7 +11,8 @@ config_version=5
 [application]
 
 config/name="GAFCinema"
-config/features=PackedStringArray("4.6", "Forward Plus")
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
 [physics]
@@ -20,4 +21,10 @@ config/icon="res://icon.svg"
 
 [rendering]
 
-rendering_device/driver.windows="d3d12"
+renderer/rendering_method="mobile"
+
+[xr]
+
+openxr/enabled=true
+openxr/startup_alert=false
+shaders/enabled=true
