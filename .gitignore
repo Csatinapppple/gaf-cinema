@@ -11,6 +11,9 @@ export_credentials.cfg
 # Imported translations (automatically generated from CSV files)
 *.translation
 
+# Build output (executáveis/APK gerados)
+build/
+
 # Mono-specific ignores
 .mono/
 data_*/

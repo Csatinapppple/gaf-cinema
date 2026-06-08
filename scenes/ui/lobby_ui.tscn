@@ -1,0 +1,79 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/lobby_ui.gd" id="1_lobby"]
+
+[node name="Lobby" type="CanvasLayer"]
+script = ExtResource("1_lobby")
+
+[node name="Panel" type="PanelContainer" parent="."]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 344.0
+offset_bottom = 184.0
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Titulo" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Cinema Virtual — Rede (LAN)"
+
+[node name="IP" type="LineEdit" parent="Panel/VBox"]
+layout_mode = 2
+text = "127.0.0.1"
+placeholder_text = "IP do servidor"
+
+[node name="HBox" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Hospedar" type="Button" parent="Panel/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Hospedar"
+
+[node name="Entrar" type="Button" parent="Panel/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Entrar"
+
+[node name="Status" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+text = "Desconectado"
+
+[node name="HostPanel" type="PanelContainer" parent="."]
+offset_left = 24.0
+offset_top = 200.0
+offset_right = 484.0
+offset_bottom = 340.0
+
+[node name="VBox" type="VBoxContainer" parent="HostPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Titulo" type="Label" parent="HostPanel/VBox"]
+layout_mode = 2
+text = "Vídeo do cinema (host)"
+
+[node name="URL" type="LineEdit" parent="HostPanel/VBox"]
+layout_mode = 2
+placeholder_text = "URL do YouTube"
+
+[node name="HBox" type="HBoxContainer" parent="HostPanel/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Carregar" type="Button" parent="HostPanel/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Carregar do YouTube"
+
+[node name="TestarLocal" type="Button" parent="HostPanel/VBox/HBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Testar local (.ogv)"
+
+[node name="VideoStatus" type="Label" parent="HostPanel/VBox"]
+layout_mode = 2
+text = "Nenhum vídeo carregado"

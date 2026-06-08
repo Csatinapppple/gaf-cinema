@@ -5,19 +5,11 @@ extends Node3D
 ## aplicada à tela via *override da superfície* "screen" do mesh combinado do
 ## cinema_hall — assim só a tela é afetada, não as paredes/chão/teto.
 ##
-## Origem do vídeo:
-##   1. `video_externo`  — arquivo "de fora da aplicação" (no Quest: /sdcard/Movies/...).
-##   2. `video_fallback` — recurso .ogv embarcado no projeto (usado em desktop/teste).
-## Se nenhum existir, a textura original da tela (screen.png do asset) é mantida.
+## A tela começa VAZIA (textura original do asset). A sessão de rede chama `preparar()`
+## (carrega no frame 0) e depois `iniciar()` (host e clientes começam juntos). Sem autoplay.
 ##
 ## Formato: o VideoStreamPlayer nativo do Godot reproduz Ogg Theora (.ogv).
-## Converter com: ffmpeg -i entrada.mp4 -q:v 7 -q:a 5 saida.ogv
 
-## Caminho absoluto no dispositivo. No Quest 2 use algo como
-## "/sdcard/Movies/cinema/filme.ogv" e copie o arquivo via `adb push`.
-@export var video_externo: String = "/sdcard/Movies/cinema/filme.ogv"
-## Vídeo embarcado usado como fallback (principalmente em desktop).
-@export_file("*.ogv") var video_fallback: String = "res://assets/videos/teste00.ogv"
 ## Repetir o vídeo ao terminar.
 @export var repetir: bool = true
 ## Marque se a imagem aparecer de cabeça para baixo na tela.
@@ -30,30 +22,67 @@ extends Node3D
 @onready var _viewport: SubViewport = $SubViewport
 @onready var _player: VideoStreamPlayer = $SubViewport/VideoStreamPlayer
 
+var _tela_aplicada: bool = false
+
 
 func _ready() -> void:
-	var stream := _obter_stream()
-	if stream == null:
-		print("[Tela] Nenhum vídeo encontrado — mantendo a textura original da tela.")
-		return
-
-	_player.stream = stream
 	if repetir:
-		_player.finished.connect(func() -> void: _player.play())
+		_player.finished.connect(_ao_terminar)
+	# Sem autoplay: a tela fica com a textura original até um vídeo ser carregado.
+
+
+func _ao_terminar() -> void:
 	_player.play()
+
+
+## Aplica a textura do SubViewport na superfície da tela uma única vez.
+func _garantir_tela() -> void:
+	if _tela_aplicada:
+		return
 	_aplicar_textura_na_tela()
-	print("[Tela] Reproduzindo vídeo na tela do cinema.")
+	_tela_aplicada = true
 
 
-## Tenta o vídeo externo; se indisponível, cai para o fallback embarcado.
-func _obter_stream() -> VideoStream:
-	if not video_externo.is_empty() and FileAccess.file_exists(video_externo):
-		var s := VideoStreamTheora.new()
-		s.file = video_externo
-		return s
-	if not video_fallback.is_empty() and ResourceLoader.exists(video_fallback):
-		return load(video_fallback)
-	return null
+# ----- API pública (usada pela sessão de rede) -----
+#
+# O seek do VideoStreamPlayer (Theora) não reposiciona de forma confiável, então NÃO
+# usamos seek para sincronizar. Em vez disso, host e clientes começam a tocar do zero
+# no mesmo instante (preparar → iniciar) e seguem a 1x.
+
+## Carrega o vídeo e deixa pronto no frame 0 (pausado), sem começar a tocar.
+func preparar(caminho: String) -> bool:
+	if caminho.is_empty():
+		return false
+	var s := VideoStreamTheora.new()
+	s.file = caminho
+	_player.stream = s
+	_garantir_tela()
+	_player.play()
+	_player.paused = true  # mostra o início, aguardando o disparo do host
+	return true
+
+
+## Começa (ou retoma) a reprodução do ponto atual.
+func iniciar() -> void:
+	if _player.stream == null:
+		return
+	if not _player.is_playing():
+		_player.play()
+	_player.paused = false
+
+
+## Pausa/retoma (para sincronizar pausas do host, quando houver controle de pausa).
+func definir_pausa(pausado: bool) -> void:
+	if _player.stream != null:
+		_player.paused = pausado
+
+
+func tempo_atual() -> float:
+	return _player.stream_position
+
+
+func esta_tocando() -> bool:
+	return _player.stream != null and not _player.paused
 
 
 ## Localiza a superfície "screen" no cinema e substitui seu material pela

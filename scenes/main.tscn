@@ -1,10 +1,14 @@
-[gd_scene load_steps=9 format=3 uid="uid://fnemy2ag0tdw"]
+[gd_scene format=3 uid="uid://fnemy2ag0tdw"]
 
 [ext_resource type="Script" uid="uid://bpdjac6jjg8fv" path="res://scripts/xr/xr_bootstrap.gd" id="1_boot"]
 [ext_resource type="PackedScene" uid="uid://kv3afcuu7ki4" path="res://assets/cinema_hall/cinema_hall.glb" id="2_hall"]
 [ext_resource type="Script" uid="uid://ih6kujyrc7kl" path="res://scripts/cinema/screen_player.gd" id="3_screen"]
-[ext_resource type="Script" path="res://scripts/player/vr_locomotion.gd" id="4_loco"]
-[ext_resource type="Script" path="res://scripts/cinema/cinema_collision.gd" id="5_col"]
+[ext_resource type="Script" uid="uid://5pt1q1k0ady1" path="res://scripts/player/vr_locomotion.gd" id="4_loco"]
+[ext_resource type="Script" uid="uid://nq7fvda5sdju" path="res://scripts/cinema/cinema_collision.gd" id="5_col"]
+[ext_resource type="Script" uid="uid://bxdi7phywpeaj" path="res://scripts/net/game_net.gd" id="6_net"]
+[ext_resource type="PackedScene" path="res://scenes/player/player_avatar.tscn" id="7_avatar"]
+[ext_resource type="PackedScene" path="res://scenes/ui/lobby_ui.tscn" id="8_lobby"]
+[ext_resource type="Script" path="res://scripts/cinema/cinema_session.gd" id="9_session"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -19,31 +23,31 @@ height = 1.7
 [sub_resource type="BoxMesh" id="Box_1"]
 size = Vector3(0.04, 0.04, 0.12)
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=393493691]
 script = ExtResource("1_boot")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1443273730]
 environment = SubResource("Environment_1")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1147412504]
 transform = Transform3D(1, 0, 0, 0, 0.5, 0.866025, 0, -0.866025, 0.5, 0, 6, 0)
 light_energy = 0.6
 shadow_enabled = true
 
-[node name="CinemaHall" parent="." instance=ExtResource("2_hall")]
+[node name="CinemaHall" parent="." unique_id=817339725 instance=ExtResource("2_hall")]
 script = ExtResource("5_col")
 
-[node name="VideoScreen" type="Node3D" parent="."]
+[node name="VideoScreen" type="Node3D" parent="." unique_id=1924588245]
 script = ExtResource("3_screen")
 inverter_vertical = true
 inverter_horizontal = true
 
-[node name="SubViewport" type="SubViewport" parent="VideoScreen"]
+[node name="SubViewport" type="SubViewport" parent="VideoScreen" unique_id=220543031]
 disable_3d = true
 size = Vector2i(1280, 720)
 render_target_update_mode = 4
 
-[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="VideoScreen/SubViewport"]
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="VideoScreen/SubViewport" unique_id=2081772910]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -51,27 +55,45 @@ grow_horizontal = 2
 grow_vertical = 2
 expand = true
 
-[node name="PlayerBody" type="CharacterBody3D" parent="."]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -10, 3, 0)
+[node name="PlayerBody" type="CharacterBody3D" parent="." unique_id=535176249]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -10, 3, 6)
 script = ExtResource("4_loco")
+altura_max_degrau = 0.6
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerBody"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PlayerBody" unique_id=771922]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
 shape = SubResource("Capsule_1")
 
-[node name="XROrigin3D" type="XROrigin3D" parent="PlayerBody"]
+[node name="XROrigin3D" type="XROrigin3D" parent="PlayerBody" unique_id=1150435415]
 
-[node name="XRCamera3D" type="XRCamera3D" parent="PlayerBody/XROrigin3D"]
+[node name="XRCamera3D" type="XRCamera3D" parent="PlayerBody/XROrigin3D" unique_id=2058935754]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
 
-[node name="LeftController" type="XRController3D" parent="PlayerBody/XROrigin3D"]
+[node name="LeftController" type="XRController3D" parent="PlayerBody/XROrigin3D" unique_id=21663856]
 tracker = &"left_hand"
 
-[node name="Mesh" type="MeshInstance3D" parent="PlayerBody/XROrigin3D/LeftController"]
+[node name="Mesh" type="MeshInstance3D" parent="PlayerBody/XROrigin3D/LeftController" unique_id=1612777605]
 mesh = SubResource("Box_1")
 
-[node name="RightController" type="XRController3D" parent="PlayerBody/XROrigin3D"]
+[node name="RightController" type="XRController3D" parent="PlayerBody/XROrigin3D" unique_id=1563353808]
 tracker = &"right_hand"
 
-[node name="Mesh" type="MeshInstance3D" parent="PlayerBody/XROrigin3D/RightController"]
+[node name="Mesh" type="MeshInstance3D" parent="PlayerBody/XROrigin3D/RightController" unique_id=1444000604]
 mesh = SubResource("Box_1")
+
+[node name="Players" type="Node3D" parent="." unique_id=351351899]
+
+[node name="AvatarSpawner" type="MultiplayerSpawner" parent="." unique_id=1498179991]
+_spawnable_scenes = PackedStringArray("res://scenes/player/player_avatar.tscn")
+spawn_path = NodePath("../Players")
+
+[node name="GameNet" type="Node" parent="." unique_id=4879988]
+script = ExtResource("6_net")
+caminho_jogadores = NodePath("../Players")
+cena_avatar = ExtResource("7_avatar")
+
+[node name="CinemaSession" type="Node" parent="."]
+script = ExtResource("9_session")
+caminho_tela = NodePath("../VideoScreen")
+
+[node name="Lobby" parent="." unique_id=1138151470 instance=ExtResource("8_lobby")]

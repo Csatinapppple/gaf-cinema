@@ -1,39 +1,44 @@
 extends Node3D
-## Gera colisão estática para a estrutura do cinema (chão inclinado, paredes, teto),
-## para que o jogador caminhe sobre o piso e não atravesse as paredes.
+## Gera colisão estática para o cinema em tempo de execução.
 ##
-## A geometria estrutural está num único mesh combinado (materiais wood/tile/floor/
-## screen/ceiling). Geramos um collider trimesh dele em tempo de execução, evitando
-## ter de versionar um recurso de colisão à parte.
+## Cria colliders trimesh para:
+##   - a estrutura (mesh combinado com chão inclinado / arquibancada, paredes, teto);
+##   - as poltronas (meshes separados das fileiras).
 ##
-## Observação: as poltronas são meshes separados e ficam SEM colisão por enquanto
-## (o jogador as atravessa) — colisão das cadeiras pode ser adicionada depois.
+## Identificamos os meshes pelos nomes de material, evitando versionar recursos de
+## colisão à parte. Decoração/luminárias ficam sem colisão (não atrapalham o caminhar).
 
-## Material usado para identificar o mesh estrutural dentro do GLB.
-@export var material_estrutura: StringName = &"floor"
+## Meshes que usem qualquer um destes materiais recebem colisão.
+@export var materiais_colisao: Array[StringName] = [&"floor", &"armchair"]
 
 
 func _ready() -> void:
-	var mi := _achar_mesh_com_material(self, material_estrutura)
-	if mi == null:
-		push_warning("[Cinema] Mesh estrutural ('%s') não encontrado — sem colisão." % material_estrutura)
+	var alvos := _meshes_com_materiais(self, materiais_colisao)
+	if alvos.is_empty():
+		push_warning("[Cinema] Nenhum mesh com os materiais %s — sem colisão." % str(materiais_colisao))
 		return
-	mi.create_trimesh_collision()
-	print("[Cinema] Colisão estática gerada a partir de '%s'." % mi.name)
+	for mi in alvos:
+		mi.create_trimesh_collision()
+	print("[Cinema] Colisão estática gerada para %d mesh(es)." % alvos.size())
 
 
-## Busca em profundidade o primeiro MeshInstance3D que use o material informado.
-func _achar_mesh_com_material(raiz: Node, mat_nome: StringName) -> MeshInstance3D:
+func _meshes_com_materiais(raiz: Node, mats: Array[StringName]) -> Array[MeshInstance3D]:
+	var out: Array[MeshInstance3D] = []
 	var pilha: Array[Node] = [raiz]
 	while not pilha.is_empty():
 		var n: Node = pilha.pop_back()
 		if n is MeshInstance3D:
 			var mi := n as MeshInstance3D
-			if mi.mesh != null:
-				for i in mi.mesh.get_surface_count():
-					var m := mi.mesh.surface_get_material(i)
-					if m != null and m.resource_name == mat_nome:
-						return mi
+			if mi.mesh != null and _usa_algum_material(mi.mesh, mats):
+				out.append(mi)
 		for c in n.get_children():
 			pilha.append(c)
-	return null
+	return out
+
+
+func _usa_algum_material(mesh: Mesh, mats: Array[StringName]) -> bool:
+	for i in mesh.get_surface_count():
+		var m := mesh.surface_get_material(i)
+		if m != null and mats.has(m.resource_name):
+			return true
+	return false

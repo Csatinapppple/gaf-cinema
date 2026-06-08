@@ -15,6 +15,11 @@ run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+Net="*res://scripts/net/network.gd"
+YtDlp="*res://addons/godot-yt-dlp/src/yt_dlp.gd"
+
 [physics]
 
 3d/physics_engine="Jolt Physics"

@@ -5,6 +5,32 @@
 
 ---
 
+## Estado atual do ambiente (checklist para destravar os builds)
+
+Verificação feita na máquina de desenvolvimento — instale o que estiver faltando:
+
+| Item | Status | Necessário para | Como instalar |
+|---|---|---|---|
+| Export templates 4.6.3 | ❌ faltando | Desktop **e** Quest | Editor → **Project → Manage Export Templates → Download and Install** |
+| `export_presets.cfg` (Windows) | ✅ criado | Desktop | já no repositório |
+| **JDK 17** | ❌ tem JDK 24 (incompatível) | Quest | Instalar OpenJDK **17** (ex.: Temurin 17) e apontar no editor |
+| Android SDK + Build Tools + `adb` | ❌ faltando | Quest | Android Studio **ou** command-line tools |
+| Android Build Template | ❌ faltando | Quest | Editor → **Project → Install Android Build Template** |
+| Plugin **OpenXR Vendors** (5.1.0) | ❌ faltando | Quest (loader Meta) | AssetLib: "Godot OpenXR Vendors", ou o `godotopenxrvendorsaddon.zip` do release |
+| Preset de export Android (XR) | ❌ criar no editor | Quest | Após plugin+SDK: criar no diálogo Export (opções de XR aparecem) |
+
+> O **desktop** só depende dos *export templates*. Os demais itens são exclusivos do **Quest**.
+
+### Build desktop (após instalar os templates)
+Com os templates instalados e o `export_presets.cfg` presente:
+```powershell
+& "D:\Godot\Godot_v4.6.3-stable_win64_console.exe" --headless --path . --export-release "Windows Desktop" build/windows/GAFCinema.exe
+```
+Gera `build/windows/GAFCinema.exe` (+ `.pck`). Essa é a versão que pode **hospedar**
+(baixa yt-dlp/ffmpeg em runtime). Para apenas entrar como cliente, qualquer build serve.
+
+---
+
 ## Parte A — Ferramentas necessárias (no PC)
 
 | Ferramenta | Versão | Observação |
