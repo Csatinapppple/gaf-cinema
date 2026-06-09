@@ -33,6 +33,10 @@ func _ready() -> void:
 	multiplayer.connection_failed.connect(func() -> void: _ao_estado("Falha na conexão."))
 	multiplayer.server_disconnected.connect(func() -> void: $Panel.visible = true)
 	_processar_argumentos()
+	# Em VR usa-se o lobby world-space (vr_lobby.gd); esconde esta UI 2D de tela.
+	await get_tree().process_frame
+	if get_viewport().use_xr:
+		visible = false
 
 
 func _hospedar() -> void:
