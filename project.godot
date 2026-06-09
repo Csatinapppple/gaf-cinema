@@ -27,6 +27,7 @@ YtDlp="*res://addons/godot-yt-dlp/src/yt_dlp.gd"
 [rendering]
 
 renderer/rendering_method="mobile"
+textures/vram_compression/import_etc2_astc=true
 
 [xr]
 
